@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Dashboard - StockPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #fafbfc;
+            --bg-card: #ffffff;
+            --bg-surface: #f8f9fa;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --text-muted: #9ca3af;
+            --border-light: #e9ecef;
+            --border-medium: #dee2e6;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .navbar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            padding: 0.5rem 0;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            width: 2rem;
+            height: 2rem;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .stat-positive {
+            color: var(--accent-green);
+        }
+
+        .stat-negative {
+            color: var(--accent-red);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .main-chart {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .chart-subtitle {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: var(--bg-surface);
+            border: 2px dashed var(--border-medium);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .top-movers {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .mover-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .mover-item:last-child {
+            border-bottom: none;
+        }
+
+        .mover-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mover-symbol {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .mover-name {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .mover-price {
+            text-align: right;
+        }
+
+        .mover-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .watchlist-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .market-news {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .news-item {
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: var(--bg-surface);
+            transition: all 0.2s;
+        }
+
+        .news-item:hover {
+            background: var(--bg-card);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .news-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .news-meta {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-nav {
+                display: none;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i>
+                StockPro
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="/stocks/analyzer/" class="nav-link">Analyzer</a></li>
+                <li><a href="/stocks/dashboard/" class="nav-link active">Dashboard</a></li>
+                <li><a href="/stocks/watchlists/" class="nav-link">Watchlists</a></li>
+                <li><a href="/api/docs/" class="nav-link">API</a></li>
+                <li><a href="/admin/" class="nav-link">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Market Dashboard</h1>
+            <p class="page-subtitle">Real-time market overview and analysis</p>
+        </div>
+
+        <!-- Market Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-label">S&P 500</div>
+                    <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--accent-blue);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-value">4,785.23</div>
+                <div class="stat-change stat-positive">+1.2% (+56.78)</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-label">NASDAQ</div>
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-green);">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                </div>
+                <div class="stat-value">15,234.56</div>
+                <div class="stat-change stat-positive">+2.1% (+312.45)</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-label">DOW JONES</div>
+                    <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--accent-red);">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                </div>
+                <div class="stat-value">37,892.14</div>
+                <div class="stat-change stat-negative">-0.3% (-123.67)</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-label">VIX</div>
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-orange);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="stat-value">18.45</div>
+                <div class="stat-change stat-negative">-2.1% (-0.39)</div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Main Chart -->
+            <div class="main-chart">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Market Overview</div>
+                        <div class="chart-subtitle">S&P 500 Index - Last 30 Days</div>
+                    </div>
+                </div>
+                <div class="chart-placeholder">
+                    <div style="text-align: center;">
+                        <i class="fas fa-chart-area" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <div>Interactive Chart Coming Soon</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.7;">
+                            Integration with TradingView or Chart.js
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar-content">
+                <!-- Top Movers -->
+                <div class="top-movers">
+                    <div class="section-title">Top Gainers</div>
+                    
+                    <div class="mover-item">
+                        <div class="mover-info">
+                            <div class="mover-symbol">NVDA</div>
+                            <div class="mover-name">NVIDIA Corp</div>
+                        </div>
+                        <div class="mover-price">
+                            <div class="mover-value">$892.45</div>
+                            <div class="stat-change stat-positive">+8.2%</div>
+                        </div>
+                    </div>
+
+                    <div class="mover-item">
+                        <div class="mover-info">
+                            <div class="mover-symbol">AMD</div>
+                            <div class="mover-name">Advanced Micro</div>
+                        </div>
+                        <div class="mover-price">
+                            <div class="mover-value">$156.78</div>
+                            <div class="stat-change stat-positive">+5.4%</div>
+                        </div>
+                    </div>
+
+                    <div class="mover-item">
+                        <div class="mover-info">
+                            <div class="mover-symbol">TSLA</div>
+                            <div class="mover-name">Tesla Inc</div>
+                        </div>
+                        <div class="mover-price">
+                            <div class="mover-value">$245.67</div>
+                            <div class="stat-change stat-positive">+4.1%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="top-movers">
+                    <div class="section-title">Quick Actions</div>
+                    <div class="watchlist-actions" style="flex-direction: column;">
+                        <a href="/stocks/analyzer/" class="btn-primary">
+                            <i class="fas fa-search" style="margin-right: 0.5rem;"></i>
+                            Analyze Stock
+                        </a>
+                        <a href="/stocks/watchlists/" class="btn-secondary">
+                            <i class="fas fa-list" style="margin-right: 0.5rem;"></i>
+                            Manage Watchlists
+                        </a>
+                        <a href="/api/docs/" class="btn-secondary">
+                            <i class="fas fa-code" style="margin-right: 0.5rem;"></i>
+                            API Documentation
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market News -->
+        <div class="market-news">
+            <div class="section-title">Market News</div>
+            <div class="news-grid">
+                <div class="news-item">
+                    <div class="news-title">Fed Signals Rate Cut Pause Amid Strong Economic Data</div>
+                    <div class="news-meta">
+                        <i class="fas fa-clock"></i>
+                        <span>2 hours ago</span>
+                        <span>•</span>
+                        <span>Reuters</span>
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-title">Tech Stocks Rally on AI Chip Demand Surge</div>
+                    <div class="news-meta">
+                        <i class="fas fa-clock"></i>
+                        <span>4 hours ago</span>
+                        <span>•</span>
+                        <span>Bloomberg</span>
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-title">Oil Prices Jump on Middle East Tensions</div>
+                    <div class="news-meta">
+                        <i class="fas fa-clock"></i>
+                        <span>6 hours ago</span>
+                        <span>•</span>
+                        <span>CNBC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add loading states to buttons
+        document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.href && !this.href.includes('#')) {
+                    const icon = this.querySelector('i');
+                    const originalIcon = icon ? icon.className : '';
+                    const originalText = this.innerHTML;
+                    
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>Loading...';
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                }
+            });
+        });
+
+        // Add refresh functionality
+        function refreshDashboard() {
+            // Simulate data refresh
+            document.querySelectorAll('.stat-value').forEach(stat => {
+                stat.style.opacity = '0.5';
+                setTimeout(() => {
+                    stat.style.opacity = '1';
+                }, 500);
+            });
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshDashboard, 30000);
+
+        // Add hover effects to stat cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

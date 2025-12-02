@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watchlists - StockPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #fafbfc;
+            --bg-card: #ffffff;
+            --bg-surface: #f8f9fa;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --text-muted: #9ca3af;
+            --border-light: #e9ecef;
+            --border-medium: #dee2e6;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .navbar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent-blue);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .watchlist-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--border-medium);
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .watchlists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .watchlist-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .watchlist-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .watchlist-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .watchlist-meta {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .stock-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .stock-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .stock-item:last-child {
+            border-bottom: none;
+        }
+
+        .stock-symbol {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stock-price {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .price-positive {
+            color: var(--accent-green);
+        }
+
+        .price-negative {
+            color: var(--accent-red);
+        }
+
+        .watchlist-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            border-radius: var(--radius-sm);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-description {
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .watchlist-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .watchlists-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar-nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i>
+                StockPro
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="/stocks/analyzer/" class="nav-link">Analyzer</a></li>
+                <li><a href="/stocks/dashboard/" class="nav-link">Dashboard</a></li>
+                <li><a href="/stocks/watchlists/" class="nav-link active">Watchlists</a></li>
+                <li><a href="/api/docs/" class="nav-link">API</a></li>
+                <li><a href="/admin/" class="nav-link">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-bookmark" style="margin-right: 0.75rem; color: var(--accent-blue);"></i>
+                My Watchlists
+            </h1>
+            <p class="page-subtitle">Track and monitor your favorite stocks with custom watchlists</p>
+        </div>
+
+        <!-- Watchlist Header -->
+        <div class="watchlist-header">
+            <div>
+                <h2 style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary);">
+                    Active Watchlists
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">
+                    Manage and organize your stock portfolios
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="#" class="btn-secondary">
+                    <i class="fas fa-download"></i>
+                    Export
+                </a>
+                <a href="#" class="btn-primary">
+                    <i class="fas fa-plus"></i>
+                    New Watchlist
+                </a>
+            </div>
+        </div>
+
+        <!-- Watchlists Grid -->
+        {% if watchlists %}
+        <div class="watchlists-grid">
+            {% for watchlist in watchlists %}
+            <div class="watchlist-card">
+                <div class="watchlist-title">
+                    <span>{{ watchlist.name }}</span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-secondary btn-small">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-secondary btn-small">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="watchlist-meta">
+                    {{ watchlist.symbols.count }} stocks • Created {{ watchlist.created_at|date:"M d, Y" }}
+                </div>
+                
+                <ul class="stock-list">
+                    {% for symbol in watchlist.symbols.all|slice:":5" %}
+                    <li class="stock-item">
+                        <span class="stock-symbol">{{ symbol.symbol }}</span>
+                        <span class="stock-price">${{ symbol.current_price|default:"--" }}</span>
+                    </li>
+                    {% empty %}
+                    <li style="text-align: center; color: var(--text-muted); font-size: 0.875rem; padding: 1rem;">
+                        No stocks added yet
+                    </li>
+                    {% endfor %}
+                    {% if watchlist.symbols.count > 5 %}
+                    <li style="text-align: center; color: var(--text-muted); font-size: 0.875rem; padding: 0.5rem;">
+                        +{{ watchlist.symbols.count|add:"-5" }} more
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <div class="watchlist-actions">
+                    <a href="#" class="btn-secondary btn-small">
+                        <i class="fas fa-eye"></i>
+                        View
+                    </a>
+                    <a href="#" class="btn-secondary btn-small">
+                        <i class="fas fa-plus"></i>
+                        Add Stock
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-bookmark"></i>
+            </div>
+            <h3 class="empty-title">No Watchlists Yet</h3>
+            <p class="empty-description">
+                Create your first watchlist to start tracking your favorite stocks and monitor market movements.
+            </p>
+            <a href="#" class="btn-primary">
+                <i class="fas fa-plus"></i>
+                Create First Watchlist
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Add smooth loading animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.watchlist-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.3s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Add click handlers for buttons
+        document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (this.href === '#' || this.href.endsWith('#')) {
+                    e.preventDefault();
+                    // Add your watchlist functionality here
+                    console.log('Watchlist action:', this.textContent.trim());
+                }
+            });
+        });
+    </script>
+</body>
+</html>

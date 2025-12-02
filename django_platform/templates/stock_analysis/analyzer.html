@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Analyzer - Professional Analysis Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #fafbfc;
+            --bg-card: #ffffff;
+            --bg-surface: #f8f9fa;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --text-muted: #9ca3af;
+            --border-light: #e9ecef;
+            --border-medium: #dee2e6;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .navbar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent-blue);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        .search-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            background: var(--bg-surface);
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-blue);
+            background: var(--bg-card);
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+        }
+
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            margin-top: 0.25rem;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-light);
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: var(--bg-surface);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-types {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .analysis-type {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .analysis-type.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .analyze-btn:hover:not(:disabled) {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .analyze-btn:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .navbar-nav {
+                display: none;
+            }
+        }
+
+        .stock-overview {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stock-symbol {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stock-name {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .stock-price {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stock-change {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .positive { color: var(--accent-green); }
+        .negative { color: var(--accent-red); }
+
+        .stock-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .metric {
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .analysis-results {
+            display: none;
+        }
+
+        .recommendation-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .recommendation-card.buy {
+            background: linear-gradient(135deg, var(--accent-green), #059669);
+            color: white;
+            border-color: var(--accent-green);
+        }
+
+        .recommendation-card.sell {
+            background: linear-gradient(135deg, var(--accent-red), #dc2626);
+            color: white;
+            border-color: var(--accent-red);
+        }
+
+        .recommendation-card.hold {
+            background: linear-gradient(135deg, var(--accent-orange), #d97706);
+            color: white;
+            border-color: var(--accent-orange);
+        }
+
+        .recommendation-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence-text {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .insight-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .insight-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .insight-icon {
+            color: var(--accent-blue);
+        }
+
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .indicator {
+            background: var(--bg-surface);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .indicator-value {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .indicator-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .levels-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .level-group h6 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .level-item {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            margin: 0.125rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .support-level {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .resistance-level {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .quick-stock {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-stock:hover {
+            background: var(--bg-surface);
+            margin: 0 -1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .quick-stock:last-child {
+            border-bottom: none;
+        }
+
+        .quick-stock-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quick-stock-symbol {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .quick-stock-name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .quick-stock-change {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-content {
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 2px solid var(--border-light);
+            border-top: 2px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ai-analysis-text {
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i>
+                StockPro
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="/stocks/analyzer/" class="nav-link active">Analyzer</a></li>
+                <li><a href="/stocks/dashboard/" class="nav-link">Dashboard</a></li>
+                <li><a href="/stocks/watchlists/" class="nav-link">Watchlists</a></li>
+                <li><a href="/api/docs/" class="nav-link">API</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="layout-grid">
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Search Section -->
+                <div class="search-section">
+                    <div style="position: relative; margin-bottom: 1rem;">
+                        <input type="text" 
+                               id="stockSearch" 
+                               class="search-input" 
+                               placeholder="Search stocks (e.g., AAPL, GOOGL, TSLA)"
+                               autocomplete="off">
+                        <div id="searchSuggestions" class="search-suggestions"></div>
+                    </div>
+
+                    <div class="analysis-types">
+                        <button class="analysis-type active" data-type="basic">Basic</button>
+                        <button class="analysis-type" data-type="technical">Technical</button>
+                        <button class="analysis-type" data-type="comprehensive">AI Analysis</button>
+                    </div>
+
+                    <button id="analyzeBtn" class="analyze-btn" disabled>
+                        Analyze Stock
+                    </button>
+                </div>
+
+                <!-- Stock Overview -->
+                <div id="stockOverview" class="stock-overview">
+                    <div class="stock-header">
+                        <div>
+                            <div id="stockSymbol" class="stock-symbol">-</div>
+                            <div id="stockName" class="stock-name">-</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div id="stockPrice" class="stock-price">$0.00</div>
+                            <div id="stockChange" class="stock-change">$0.00 (0.00%)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stock-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Volume</div>
+                            <div id="stockVolume" class="metric-value">-</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Market Cap</div>
+                            <div id="stockMarketCap" class="metric-value">-</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">P/E Ratio</div>
+                            <div id="stockPE" class="metric-value">-</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Last Updated</div>
+                            <div class="metric-value">Just now</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Results -->
+                <div id="analysisResults" class="analysis-results">
+                    <!-- Recommendation -->
+                    <div id="recommendationCard" class="recommendation-card">
+                        <div class="recommendation-text">
+                            <i id="recommendationIcon" class="fas fa-thumbs-up" style="margin-right: 0.5rem;"></i>
+                            <span id="recommendationText">BUY</span>
+                        </div>
+                        <div id="confidenceText" class="confidence-text">Confidence: 85%</div>
+                    </div>
+
+                    <!-- AI Analysis -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <i class="fas fa-brain insight-icon"></i>
+                            <div class="insight-title">AI Analysis</div>
+                        </div>
+                        <div id="aiAnalysisText" class="ai-analysis-text">
+                            Analysis will appear here...
+                        </div>
+                    </div>
+
+                    <!-- Technical Indicators -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <i class="fas fa-chart-line insight-icon"></i>
+                            <div class="insight-title">Technical Indicators</div>
+                        </div>
+                        <div id="technicalIndicators" class="indicators-grid">
+                            <!-- Indicators will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Support & Resistance -->
+                    <div class="insight-card">
+                        <div class="insight-header">
+                            <i class="fas fa-layer-group insight-icon"></i>
+                            <div class="insight-title">Key Levels</div>
+                        </div>
+                        <div class="levels-grid">
+                            <div class="level-group">
+                                <h6>Support Levels</h6>
+                                <div id="supportLevels"></div>
+                            </div>
+                            <div class="level-group">
+                                <h6>Resistance Levels</h6>
+                                <div id="resistanceLevels"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Popular Stocks -->
+                <div class="sidebar-card">
+                    <div class="sidebar-title">Popular Stocks</div>
+                    <div>
+                        <div class="quick-stock" data-symbol="AAPL">
+                            <div class="quick-stock-info">
+                                <div class="quick-stock-symbol">AAPL</div>
+                                <div class="quick-stock-name">Apple Inc.</div>
+                            </div>
+                            <div class="quick-stock-change positive">+1.2%</div>
+                        </div>
+                        <div class="quick-stock" data-symbol="GOOGL">
+                            <div class="quick-stock-info">
+                                <div class="quick-stock-symbol">GOOGL</div>
+                                <div class="quick-stock-name">Alphabet Inc.</div>
+                            </div>
+                            <div class="quick-stock-change positive">+0.8%</div>
+                        </div>
+                        <div class="quick-stock" data-symbol="MSFT">
+                            <div class="quick-stock-info">
+                                <div class="quick-stock-symbol">MSFT</div>
+                                <div class="quick-stock-name">Microsoft Corp.</div>
+                            </div>
+                            <div class="quick-stock-change positive">+1.5%</div>
+                        </div>
+                        <div class="quick-stock" data-symbol="TSLA">
+                            <div class="quick-stock-info">
+                                <div class="quick-stock-symbol">TSLA</div>
+                                <div class="quick-stock-name">Tesla Inc.</div>
+                            </div>
+                            <div class="quick-stock-change negative">-0.5%</div>
+                        </div>
+                        <div class="quick-stock" data-symbol="AMZN">
+                            <div class="quick-stock-info">
+                                <div class="quick-stock-symbol">AMZN</div>
+                                <div class="quick-stock-name">Amazon.com Inc.</div>
+                            </div>
+                            <div class="quick-stock-change positive">+2.1%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div>Analyzing stock...</div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedSymbol = '';
+        let selectedAnalysisType = 'basic';
+
+        // DOM Elements
+        const stockSearch = document.getElementById('stockSearch');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const stockOverview = document.getElementById('stockOverview');
+        const analysisResults = document.getElementById('analysisResults');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+        });
+
+        function initializeEventListeners() {
+            // Stock search
+            stockSearch.addEventListener('input', handleStockSearch);
+            stockSearch.addEventListener('blur', function() {
+                setTimeout(() => {
+                    searchSuggestions.style.display = 'none';
+                }, 200);
+            });
+
+            // Analysis type selection
+            document.querySelectorAll('.analysis-type').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.analysis-type').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedAnalysisType = this.dataset.type;
+                });
+            });
+
+            // Analyze button
+            analyzeBtn.addEventListener('click', performAnalysis);
+
+            // Quick stock selection
+            document.querySelectorAll('.quick-stock').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const symbol = this.dataset.symbol;
+                    stockSearch.value = symbol;
+                    selectedSymbol = symbol;
+                    analyzeBtn.disabled = false;
+                    getStockData(symbol);
+                });
+            });
+
+            // Enter key for search
+            stockSearch.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedSymbol && !analyzeBtn.disabled) {
+                        performAnalysis();
+                    }
+                }
+            });
+        }
+
+        async function handleStockSearch() {
+            const query = stockSearch.value.trim();
+            
+            if (query.length < 1) {
+                searchSuggestions.style.display = 'none';
+                analyzeBtn.disabled = true;
+                selectedSymbol = '';
+                return;
+            }
+
+            if (query.length >= 1 && /^[A-Za-z]+$/.test(query)) {
+                selectedSymbol = query.toUpperCase();
+                analyzeBtn.disabled = false;
+                
+                if (query.length >= 2) {
+                    getStockData(selectedSymbol);
+                }
+            }
+
+            try {
+                const response = await fetch(`/stocks/ajax/search/?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.results && data.results.length > 0) {
+                    displaySearchSuggestions(data.results);
+                } else {
+                    searchSuggestions.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                searchSuggestions.style.display = 'none';
+            }
+        }
+
+        function displaySearchSuggestions(results) {
+            searchSuggestions.innerHTML = '';
+            
+            results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>${result.symbol}</strong>
+                        <small style="color: var(--text-muted);">${result.name}</small>
+                    </div>
+                `;
+                
+                item.addEventListener('click', function() {
+                    stockSearch.value = result.symbol;
+                    selectedSymbol = result.symbol;
+                    analyzeBtn.disabled = false;
+                    searchSuggestions.style.display = 'none';
+                    getStockData(result.symbol);
+                });
+                
+                searchSuggestions.appendChild(item);
+            });
+            
+            searchSuggestions.style.display = 'block';
+        }
+
+        async function getStockData(symbol) {
+            try {
+                const response = await fetch(`/stocks/ajax/stock-data/?symbol=${encodeURIComponent(symbol)}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayStockInfo(data);
+                }
+            } catch (error) {
+                console.error('Error fetching stock data:', error);
+            }
+        }
+
+        function displayStockInfo(data) {
+            document.getElementById('stockSymbol').textContent = data.symbol;
+            document.getElementById('stockName').textContent = data.name;
+            document.getElementById('stockPrice').textContent = `$${data.price}`;
+            
+            const changeElement = document.getElementById('stockChange');
+            const changeText = `$${data.change} (${data.change_percent}%)`;
+            changeElement.textContent = changeText;
+            changeElement.className = `stock-change ${data.change >= 0 ? 'positive' : 'negative'}`;
+            
+            document.getElementById('stockVolume').textContent = data.volume;
+            document.getElementById('stockMarketCap').textContent = data.market_cap;
+            document.getElementById('stockPE').textContent = data.pe_ratio;
+            
+            stockOverview.style.display = 'block';
+        }
+
+        async function performAnalysis() {
+            if (!selectedSymbol) {
+                alert('Please select a stock symbol');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const response = await fetch('/stocks/ajax/analyze/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({
+                        symbol: selectedSymbol,
+                        analysis_type: selectedAnalysisType
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayAnalysisResults(data);
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                console.error('Analysis error:', error);
+                alert('Analysis failed: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayAnalysisResults(data) {
+            // Display recommendation
+            const recommendationCard = document.getElementById('recommendationCard');
+            const recommendationText = document.getElementById('recommendationText');
+            const confidenceText = document.getElementById('confidenceText');
+            const recommendationIcon = document.getElementById('recommendationIcon');
+            
+            recommendationText.textContent = data.result.recommendation;
+            confidenceText.textContent = `Confidence: ${data.result.confidence}%`;
+            
+            // Update recommendation styling
+            recommendationCard.className = `recommendation-card ${data.result.recommendation.toLowerCase()}`;
+            
+            // Update icon
+            if (data.result.recommendation === 'BUY') {
+                recommendationIcon.className = 'fas fa-thumbs-up';
+            } else if (data.result.recommendation === 'SELL') {
+                recommendationIcon.className = 'fas fa-thumbs-down';
+            } else {
+                recommendationIcon.className = 'fas fa-hand-paper';
+            }
+
+            // Display AI analysis
+            document.getElementById('aiAnalysisText').textContent = data.result.ai_analysis;
+
+            // Display technical indicators
+            const indicatorsContainer = document.getElementById('technicalIndicators');
+            indicatorsContainer.innerHTML = '';
+            
+            Object.entries(data.result.technical_indicators).forEach(([key, value]) => {
+                const indicator = document.createElement('div');
+                indicator.className = 'indicator';
+                indicator.innerHTML = `
+                    <div class="indicator-value">${value}</div>
+                    <div class="indicator-label">${key.replace('_', ' ')}</div>
+                `;
+                indicatorsContainer.appendChild(indicator);
+            });
+
+            // Display support and resistance levels
+            const supportContainer = document.getElementById('supportLevels');
+            const resistanceContainer = document.getElementById('resistanceLevels');
+            
+            supportContainer.innerHTML = '';
+            resistanceContainer.innerHTML = '';
+            
+            data.result.key_levels.support.forEach(level => {
+                const span = document.createElement('span');
+                span.className = 'level-item support-level';
+                span.textContent = `$${level}`;
+                supportContainer.appendChild(span);
+            });
+            
+            data.result.key_levels.resistance.forEach(level => {
+                const span = document.createElement('span');
+                span.className = 'level-item resistance-level';
+                span.textContent = `$${level}`;
+                resistanceContainer.appendChild(span);
+            });
+
+            // Show results
+            analysisResults.style.display = 'block';
+        }
+
+        function showLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function getCsrfToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    return value;
+                }
+            }
+            return '';
+        }
+    </script>
+</body>
+</html>

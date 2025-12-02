@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Dashboard - StockPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #fafbfc;
+            --bg-card: #ffffff;
+            --bg-surface: #f8f9fa;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --text-muted: #9ca3af;
+            --border-light: #e9ecef;
+            --border-medium: #dee2e6;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .navbar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent-blue);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .market-summary {
+            background: linear-gradient(135deg, var(--accent-blue), #1e40af);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .summary-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-label {
+            opacity: 0.8;
+            font-size: 0.875rem;
+        }
+
+        .stock-list-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stock-list-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .stock-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .stock-symbol {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .stock-name {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .stock-price {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .stock-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .positive {
+            color: var(--success-color);
+        }
+
+        .negative {
+            color: var(--danger-color);
+        }
+
+        .neutral {
+            color: var(--text-secondary);
+        }
+
+        .news-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .news-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .news-summary {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .news-time {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .refresh-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        .loading-text {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>
+                Stock Analysis Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/stocks/analyzer/">
+                            <i class="fas fa-search me-1"></i>Analyzer
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/stocks/dashboard/">
+                            <i class="fas fa-chart-area me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/stocks/watchlists/">
+                            <i class="fas fa-list me-1"></i>Watchlists
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/stocks/history/">
+                            <i class="fas fa-history me-1"></i>History
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/docs/">
+                            <i class="fas fa-book me-1"></i>API Docs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/">
+                            <i class="fas fa-cog me-1"></i>Admin
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <!-- Market Summary -->
+        <div class="market-summary">
+            <h2 class="mb-4 text-center">
+                <i class="fas fa-globe me-2"></i>
+                Market Overview
+            </h2>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="summary-item">
+                        <div class="summary-value">+1.2%</div>
+                        <div class="summary-label">S&P 500</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-item">
+                        <div class="summary-value">+0.8%</div>
+                        <div class="summary-label">NASDAQ</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-item">
+                        <div class="summary-value">+0.5%</div>
+                        <div class="summary-label">DOW JONES</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-item">
+                        <div class="summary-value">-0.2%</div>
+                        <div class="summary-label">VIX</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Popular Stocks -->
+            <div class="col-lg-8">
+                <div class="dashboard-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-fire text-danger me-2"></i>
+                            Most Active Stocks
+                        </h3>
+                        <button class="refresh-btn" onclick="refreshStockData()">
+                            <i class="fas fa-sync-alt me-1"></i>
+                            Refresh
+                        </button>
+                    </div>
+                    
+                    <div id="stocksList">
+                        <!-- Stock items will be loaded here -->
+                        <div class="loading-text">
+                            <i class="fas fa-spinner fa-spin me-2"></i>
+                            Loading market data...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions & News -->
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="dashboard-card">
+                    <h4 class="mb-3">
+                        <i class="fas fa-bolt text-warning me-2"></i>
+                        Quick Actions
+                    </h4>
+                    <div class="d-grid gap-2">
+                        <a href="/stocks/analyzer/" class="action-btn">
+                            <i class="fas fa-search me-2"></i>
+                            Analyze Stock
+                        </a>
+                        <a href="/stocks/watchlists/" class="action-btn">
+                            <i class="fas fa-list me-2"></i>
+                            Create Watchlist
+                        </a>
+                        <a href="/stocks/history/" class="action-btn">
+                            <i class="fas fa-history me-2"></i>
+                            View History
+                        </a>
+                        <a href="/api/docs/" class="action-btn">
+                            <i class="fas fa-code me-2"></i>
+                            API Docs
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Market News -->
+                <div class="dashboard-card">
+                    <h4 class="mb-3">
+                        <i class="fas fa-newspaper text-info me-2"></i>
+                        Market News
+                    </h4>
+                    <div id="newsList">
+                        <div class="news-item">
+                            <div class="news-title">Markets Rally on Tech Earnings</div>
+                            <div class="news-summary">Technology stocks surge as major companies report better-than-expected quarterly results...</div>
+                            <div class="news-time">2 hours ago</div>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-title">Federal Reserve Holds Interest Rates</div>
+                            <div class="news-summary">The Fed maintains current interest rate policy amid ongoing economic uncertainty...</div>
+                            <div class="news-time">4 hours ago</div>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-title">Oil Prices Rise on Supply Concerns</div>
+                            <div class="news-summary">Crude oil futures climb as geopolitical tensions affect global supply chains...</div>
+                            <div class="news-time">6 hours ago</div>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-title">Crypto Market Shows Stability</div>
+                            <div class="news-summary">Bitcoin and major cryptocurrencies maintain steady trading ranges this week...</div>
+                            <div class="news-time">8 hours ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mock stock data
+        const mockStocks = [
+            { symbol: 'AAPL', name: 'Apple Inc.', price: 182.52, change: 2.45, changePercent: 1.36 },
+            { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 2756.45, change: 22.15, changePercent: 0.81 },
+            { symbol: 'MSFT', name: 'Microsoft Corp.', price: 418.22, change: 6.78, changePercent: 1.65 },
+            { symbol: 'AMZN', name: 'Amazon.com Inc.', price: 3245.67, change: 45.23, changePercent: 1.41 },
+            { symbol: 'TSLA', name: 'Tesla Inc.', price: 865.43, change: -12.34, changePercent: -1.41 },
+            { symbol: 'NVDA', name: 'NVIDIA Corp.', price: 892.15, change: 18.56, changePercent: 2.12 },
+            { symbol: 'META', name: 'Meta Platforms Inc.', price: 478.92, change: 8.67, changePercent: 1.84 },
+            { symbol: 'NFLX', name: 'Netflix Inc.', price: 456.78, change: -3.45, changePercent: -0.75 },
+            { symbol: 'BABA', name: 'Alibaba Group', price: 98.45, change: 2.14, changePercent: 2.22 },
+            { symbol: 'CRM', name: 'Salesforce Inc.', price: 234.56, change: 5.67, changePercent: 2.48 }
+        ];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStockData();
+        });
+
+        function loadStockData() {
+            const stocksList = document.getElementById('stocksList');
+            stocksList.innerHTML = '';
+
+            mockStocks.forEach(stock => {
+                const stockItem = createStockListItem(stock);
+                stocksList.appendChild(stockItem);
+            });
+        }
+
+        function createStockListItem(stock) {
+            const item = document.createElement('div');
+            item.className = 'stock-list-item';
+            
+            const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+            const changeIcon = stock.change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+            
+            item.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stock-symbol">${stock.symbol}</div>
+                        <div class="stock-name">${stock.name}</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="stock-price">$${stock.price.toFixed(2)}</div>
+                        <div class="stock-change ${changeClass}">
+                            <i class="fas ${changeIcon} me-1"></i>
+                            $${Math.abs(stock.change).toFixed(2)} (${Math.abs(stock.changePercent).toFixed(2)}%)
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add click handler to analyze stock
+            item.addEventListener('click', function() {
+                window.location.href = `/stocks/analyzer/?symbol=${stock.symbol}`;
+            });
+
+            return item;
+        }
+
+        function refreshStockData() {
+            const stocksList = document.getElementById('stocksList');
+            stocksList.innerHTML = `
+                <div class="loading-text">
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    Refreshing market data...
+                </div>
+            `;
+
+            // Simulate API call delay
+            setTimeout(() => {
+                // Add some random variation to prices
+                mockStocks.forEach(stock => {
+                    const variation = (Math.random() - 0.5) * 10;
+                    const newPrice = stock.price + variation;
+                    stock.change = variation;
+                    stock.changePercent = (variation / stock.price) * 100;
+                    stock.price = newPrice;
+                });
+
+                loadStockData();
+            }, 1500);
+        }
+
+        // Add keyboard shortcut for refresh
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'r' && e.ctrlKey) {
+                e.preventDefault();
+                refreshStockData();
+            }
+        });
+    </script>
+</body>
+</html>

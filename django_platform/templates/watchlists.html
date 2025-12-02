@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watchlists - StockPro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #fafbfc;
+            --bg-card: #ffffff;
+            --bg-surface: #f8f9fa;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --text-muted: #9ca3af;
+            --border-light: #e9ecef;
+            --border-medium: #dee2e6;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-orange: #f59e0b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .navbar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .navbar-nav {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            padding: 0.5rem 0;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .page-title-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .watchlists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .watchlist-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+
+        .watchlist-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .watchlist-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .watchlist-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .watchlist-menu {
+            position: relative;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.25rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .menu-btn:hover {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+        }
+
+        .watchlist-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stock-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .stock-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+        }
+
+        .stock-item:hover {
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .stock-symbol {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            min-width: 4rem;
+        }
+
+        .stock-name {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            flex: 1;
+        }
+
+        .stock-price {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .price-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .price-change {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .price-positive {
+            color: var(--accent-green);
+        }
+
+        .price-negative {
+            color: var(--accent-red);
+        }
+
+        .empty-state {
+            background: var(--bg-card);
+            border: 2px dashed var(--border-medium);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-description {
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .create-watchlist-form {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background: var(--bg-surface);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: var(--bg-card);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-secondary {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .navbar-nav {
+                display: none;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .watchlists-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i>
+                StockPro
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="/stocks/analyzer/" class="nav-link">Analyzer</a></li>
+                <li><a href="/stocks/dashboard/" class="nav-link">Dashboard</a></li>
+                <li><a href="/stocks/watchlists/" class="nav-link active">Watchlists</a></li>
+                <li><a href="/api/docs/" class="nav-link">API</a></li>
+                <li><a href="/admin/" class="nav-link">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title-section">
+                <h1 class="page-title">My Watchlists</h1>
+                <p class="page-subtitle">Track and monitor your favorite stocks</p>
+            </div>
+            <button class="btn-primary" onclick="toggleCreateForm()">
+                <i class="fas fa-plus"></i>
+                Create Watchlist
+            </button>
+        </div>
+
+        <!-- Create Watchlist Form -->
+        <div id="createForm" class="create-watchlist-form" style="display: none;">
+            <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Create New Watchlist</h3>
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Watchlist Name</label>
+                    <input type="text" class="form-input" placeholder="e.g., Tech Stocks, Growth Picks, Dividend Stocks" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description (Optional)</label>
+                    <input type="text" class="form-input" placeholder="Brief description of this watchlist">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i>
+                        Create Watchlist
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="toggleCreateForm()">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Watchlists Grid -->
+        <div class="watchlists-grid">
+            <!-- Sample Watchlist 1 -->
+            <div class="watchlist-card">
+                <div class="watchlist-header">
+                    <div class="watchlist-title">Tech Giants</div>
+                    <div class="watchlist-menu">
+                        <button class="menu-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="watchlist-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>5 stocks</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Updated 2m ago</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-trending-up"></i>
+                        <span>+2.4%</span>
+                    </div>
+                </div>
+
+                <div class="stock-list">
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-symbol">AAPL</div>
+                            <div class="stock-name">Apple Inc.</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price-value">$189.45</div>
+                            <div class="price-change price-positive">+1.2%</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-symbol">MSFT</div>
+                            <div class="stock-name">Microsoft Corp</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price-value">$378.92</div>
+                            <div class="price-change price-positive">+0.8%</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-symbol">GOOGL</div>
+                            <div class="stock-name">Alphabet Inc</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price-value">$142.67</div>
+                            <div class="price-change price-negative">-0.3%</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-symbol">AMZN</div>
+                            <div class="stock-name">Amazon.com Inc</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price-value">$156.78</div>
+                            <div class="price-change price-positive">+2.1%</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-symbol">META</div>
+                            <div class="stock-name">Meta Platforms</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price-value">$498.34</div>
+                            <div class="price-change price-positive">+3.2%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sample Watchlist 2 -->
+            <div class="watchlist-card">
+                <div class="watchlist-header">
+                    <div class="watchlist-title">Growth Stocks</div>
+                    <div class="watchlist-menu">
+                        <button class="menu-btn">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="watchlist-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>3 stocks</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Updated 5m ago</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-trending-up"></i>
+                        <span>+5.7%</span>
+                    </div>
+                </div>
+
+                <div class="stock-list">
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-symbol">NVDA</div>
+                            <div class="stock-name">NVIDIA Corp</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price-value">$892.45</div>
+                            <div class="price-change price-positive">+8.2%</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-symbol">TSLA</div>
+                            <div class="stock-name">Tesla Inc</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price-value">$245.67</div>
+                            <div class="price-change price-positive">+4.1%</div>
+                        </div>
+                    </div>
+
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-symbol">AMD</div>
+                            <div class="stock-name">Advanced Micro</div>
+                        </div>
+                        <div class="stock-price">
+                            <div class="price-value">$156.78</div>
+                            <div class="price-change price-positive">+5.4%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State / Create New Card -->
+            <div class="watchlist-card" style="border: 2px dashed var(--border-medium); background: var(--bg-surface);">
+                <div class="empty-state" style="padding: 2rem 1rem;">
+                    <div class="empty-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div class="empty-title">Create Another Watchlist</div>
+                    <div class="empty-description">
+                        Organize your stocks by theme, sector, or strategy
+                    </div>
+                    <button class="btn-primary" onclick="toggleCreateForm()">
+                        <i class="fas fa-plus"></i>
+                        New Watchlist
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- If no watchlists exist -->
+        <div id="emptyState" style="display: none;">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-list-alt"></i>
+                </div>
+                <div class="empty-title">No Watchlists Yet</div>
+                <div class="empty-description">
+                    Create your first watchlist to start tracking stocks that interest you
+                </div>
+                <button class="btn-primary" onclick="toggleCreateForm()">
+                    <i class="fas fa-plus"></i>
+                    Create Your First Watchlist
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleCreateForm() {
+            const form = document.getElementById('createForm');
+            const isVisible = form.style.display !== 'none';
+            form.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible) {
+                form.scrollIntoView({ behavior: 'smooth' });
+                form.querySelector('input').focus();
+            }
+        }
+
+        // Add loading states to buttons
+        document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (this.type === 'submit') {
+                    e.preventDefault();
+                    const icon = this.querySelector('i');
+                    const originalIcon = icon ? icon.className : '';
+                    const originalText = this.innerHTML;
+                    
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>Creating...';
+                    this.disabled = true;
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                        toggleCreateForm();
+                        
+                        // Show success message
+                        alert('Watchlist created successfully!');
+                    }, 1500);
+                }
+            });
+        });
+
+        // Add hover effects to stock items
+        document.querySelectorAll('.stock-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const symbol = this.querySelector('.stock-symbol').textContent;
+                window.location.href = `/stocks/analyzer/?symbol=${symbol}`;
+            });
+            
+            item.style.cursor = 'pointer';
+        });
+
+        // Add menu functionality
+        document.querySelectorAll('.menu-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                // Toggle menu dropdown (placeholder)
+                alert('Watchlist menu: Edit, Delete, Share options coming soon!');
+            });
+        });
+
+        // Auto-refresh prices (simulation)
+        function refreshPrices() {
+            document.querySelectorAll('.price-value').forEach(price => {
+                price.style.opacity = '0.5';
+                setTimeout(() => {
+                    price.style.opacity = '1';
+                }, 300);
+            });
+        }
+
+        setInterval(refreshPrices, 30000);
+    </script>
+</body>
+</html>
