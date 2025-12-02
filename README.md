@@ -19,6 +19,7 @@ Stock-Analysis-AI-Agents/
 ├── .env                          # Environment variables (API keys)
 └── README.md                     # Documentation
 ```
+%%%%%____VIDEO LINK___%%%%%%  https://drive.google.com/file/d/1lNLgqSlPEUsj7XhpjnZByBE0R7FFDOf0/view?usp=sharing
 
 ### Module Responsibilities
 - **config.py**: Centralized configuration management (API keys, UI settings, app constants)
